@@ -14,12 +14,55 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilos personalizados para complementar Tailwind */
+        /* --- VARIABLES DE TEMA (NUEVO TEMA VERDE/AZUL POR DEFECTO) --- */
+        :root {
+            --bg-color: #111827;
+            --text-color: #e0e0e0;
+            --primary-glow-1: rgba(20, 184, 166, 0.7);
+            --primary-glow-2: rgba(13, 148, 136, 0.5);
+            --card-bg-1: #1F2937;
+            --card-bg-2: #111827;
+            --card-border-1: #22d3ee;
+            --card-border-2: #34d399;
+            --card-border-3: #67e8f9;
+            --card-border-4: #0d9488;
+            --cursor-glow-color: rgba(34, 211, 238, 0.3);
+            --particle-rgb: 20, 184, 166; /* Verde azulado */
+            --constellation-rgb: 52, 211, 153; /* Esmeralda */
+            --scrollbar-thumb-1: #22d3ee;
+            --scrollbar-thumb-2: #34d399;
+            --scrollbar-thumb-3: #0d9488;
+            --input-wrapper-error: #ef4444;
+            --input-wrapper-success: #10b981;
+        }
+
+        /* Tema desbloqueable "Love" */
+        body.theme-love {
+            --primary-glow-1: rgba(252, 131, 202, 0.7);
+            --primary-glow-2: rgba(244, 63, 155, 0.5);
+            --card-bg-1: #2e1a24;
+            --card-bg-2: #2e1a23;
+            --card-border-1: #f43f9b;
+            --card-border-2: #d946ef;
+            --card-border-3: #ec4899;
+            --card-border-4: #ef4444;
+            --cursor-glow-color: rgba(236, 72, 153, 0.3);
+            --particle-rgb: 167, 139, 250; /* Morado */
+            --constellation-rgb: 251, 146, 185; /* Rosa claro */
+            --scrollbar-thumb-1: #f472b6;
+            --scrollbar-thumb-2: #ec4899;
+            --scrollbar-thumb-3: #e879f9;
+            --input-wrapper-success: #ec4899;
+        }
+
+        /* Estilos generales */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #1a1a2e;
-            color: #e0e0e0;
-            overflow: hidden; /* Evita el scroll para mantener el efecto de fondo */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            transition: background-color 0.5s ease;
         }
 
         #particle-canvas {
@@ -34,10 +77,16 @@
         main {
             position: relative;
             z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
         }
 
         .text-glow {
-            text-shadow: 0 0 8px rgba(72, 236, 118, 0.6), 0 0 20px rgba(36, 156, 62, 0.4);
+            text-shadow: 0 0 8px var(--primary-glow-1), 0 0 20px var(--primary-glow-2);
+            transition: text-shadow 0.5s ease;
         }
 
         @property --angle {
@@ -49,27 +98,27 @@
         .glowing-card {
             --border-size: 3px;
             --angle: 0deg;
-            
             border: var(--border-size) solid transparent;
             border-radius: 1.5rem;
-            
             background-image: 
-                linear-gradient(to right, #1a2e24, #1a232e),
-                conic-gradient(from var(--angle), #46ef5a, #57bb7e, #a6ff8a, #28aa59);
-            
+                linear-gradient(to right, var(--card-bg-1), var(--card-bg-2)),
+                conic-gradient(from var(--angle), var(--card-border-1), var(--card-border-2), var(--card-border-3), var(--card-border-4));
             background-size: 100% 100%;
             background-position: center center;
             background-clip: padding-box, border-box;
             background-origin: padding-box, border-box;
-            
             animation: rotate-angle 4s linear infinite;
-            transition: padding 0.7s cubic-bezier(0.45, 0, 0.55, 1);
-            position: relative; /* Necesario para posicionar el botón de regreso */
+            transition: padding 0.7s cubic-bezier(0.45, 0, 0.55, 1), background-image 0.5s ease;
+            position: relative;
+            width: 100%;
+            max-width: 4xl;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .glowing-card.is-shrunken {
-            padding-top: 3rem;
-            padding-bottom: 3rem;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
         }
         
         #intro-paragraph {
@@ -84,8 +133,8 @@
             white-space: nowrap;
         }
         
-        #button-container {
-            transition: max-height 0.5s ease, opacity 0.3s ease;
+        #button-container, #love-button-container {
+            transition: max-height 0.5s ease, opacity 0.3s ease, margin 0.5s ease;
         }
 
         #back-button {
@@ -99,7 +148,7 @@
             opacity: 0;
         }
         .message.is-visible, #secret-code-section.is-visible, #writings-section.is-visible {
-            max-height: 500px; /* Aumentado para dar espacio a los textos */
+            max-height: 500px; /* Reducido para que quepa mejor */
             opacity: 1;
         }
         
@@ -109,7 +158,7 @@
 
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+            50% { transform: translateY(-15px); }
         }
         
         .animate-float {
@@ -128,121 +177,181 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(72, 236, 88, 0.3);
+            background: var(--cursor-glow-color);
             filter: blur(20px);
             pointer-events: none;
             transform: translate(-50%, -50%);
-            transition: transform 0.1s ease-out;
+            transition: transform 0.1s ease-out, background 0.5s ease;
             z-index: 9999;
         }
 
         .gradient-ball {
-            background: conic-gradient(from var(--angle), #4ae657, #2b97a7, #5cf6b3, #76d855);
+            background: conic-gradient(from var(--angle), var(--card-border-1), var(--card-border-3), var(--card-border-2));
             animation: rotate-angle 4s linear infinite;
         }
 
         #secret-input-wrapper {
             position: relative;
             border-radius: 0.75rem;
-            padding: 2px; /* Grosor del borde */
-            background: rgba(255, 255, 255, 0.2); /* Borde "apagado" */
+            padding: 2px;
+            background: rgba(255, 255, 255, 0.2);
             transition: background 0.4s;
         }
         #secret-input-wrapper.is-focused {
-            background: conic-gradient(from var(--angle), #7cef46, #48ec9f, #5ce9f6, #46ef9a);
+            background: conic-gradient(from var(--angle), var(--card-border-1), var(--card-border-2), var(--card-border-3), var(--card-border-4));
             animation: rotate-angle 4s linear infinite;
         }
         #secret-input-wrapper.success {
-            background: #22c55e;
-            animation: none; /* Detener animación en éxito */
+            background: var(--input-wrapper-success);
+            animation: none;
         }
         #secret-input-wrapper.error {
-            background: #ef4444; /* Borde rojo en error */
+            background: var(--input-wrapper-error);
             animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         #secret-code-input {
-            background-color: #1a1a2e; /* Color de fondo interior */
+            background-color: var(--bg-color);
             border: none;
             outline: none;
             width: 100%;
-            border-radius: 0.6rem; /* Radio interior */
+            border-radius: 0.6rem;
         }
 
         #writing-display {
             transition: opacity 0.5s ease;
-            max-height: 300px; 
+            max-height: 250px; 
             overflow-y: auto;
             padding-right: 1rem; 
         }
 
-        #writing-display::-webkit-scrollbar {
-            width: 8px;
+        #writing-display::-webkit-scrollbar { width: 8px; }
+        #writing-display::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        #writing-display::-webkit-scrollbar-thumb { background: linear-gradient(45deg, var(--scrollbar-thumb-1), var(--scrollbar-thumb-2), var(--scrollbar-thumb-3)); border-radius: 10px; }
+        #writing-display::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+
+        /* Scroll personalizado para la tarjeta principal */
+        .glowing-card::-webkit-scrollbar { width: 8px; }
+        .glowing-card::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .glowing-card::-webkit-scrollbar-thumb { background: linear-gradient(45deg, var(--scrollbar-thumb-1), var(--scrollbar-thumb-2), var(--scrollbar-thumb-3)); border-radius: 10px; }
+        .glowing-card::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+
+        /* --- NUEVOS ESTILOS PARA FUNCIONES DESBLOQUEABLES --- */
+        .heart {
+            position: fixed;
+            top: -10vh;
+            font-size: 2rem;
+            transform: translateY(0);
+            animation: fall 5s linear forwards;
+            pointer-events: none;
+            z-index: 10000;
         }
 
-        #writing-display::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
-        #writing-display::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, #7cef46, #6bec48, #69f65c);
-            border-radius: 10px;
+        /* Media queries para ajustar en móviles */
+        @media (max-height: 700px) {
+            .glowing-card {
+                max-height: 95vh;
+            }
+            
+            h1 {
+                font-size: 3rem !important;
+            }
+            
+            #intro-paragraph {
+                font-size: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .action-button {
+                padding: 0.6rem 1.5rem !important;
+                font-size: 0.9rem !important;
+            }
         }
 
-        #writing-display::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(45deg, #57ff76, #5bff5e, #6effd6);
+        @media (max-height: 600px) {
+            main {
+                padding: 1rem;
+            }
+            
+            .glowing-card {
+                padding: 1.5rem !important;
+                max-height: 98vh;
+            }
+            
+            .glowing-card.is-shrunken {
+                padding: 1rem !important;
+            }
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="min-h-screen">
 
     <canvas id="particle-canvas"></canvas>
     <div id="cursor-glow"></div>
 
     <main class="text-center w-full max-w-4xl mx-auto">
         
-        <div id="glowing-card" class="glowing-card p-8 sm:p-12 md:p-16">
+        <div id="glowing-card" class="glowing-card p-6 sm:p-8 md:p-10">
             
-            <a href="#" id="back-button" class="gradient-ball absolute top-6 left-6 w-10 h-10 rounded-full flex items-center justify-center opacity-0 pointer-events-none transform hover:scale-110 -translate-x-20">
+            <a href="#" id="back-button" class="gradient-ball absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center opacity-0 pointer-events-none transform hover:scale-110 -translate-x-20">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 256 256" class="relative z-10"><path d="M168.49,199.51a12,12,0,0,1-17,17l-80-80a12,12,0,0,1,0-17l80-80a12,12,0,0,1,17,17L97,128Z"></path></svg>
             </a>
 
             <div class="animate-float">
-                <h1 class="text-5xl md:text-7xl font-bold text-white text-glow mb-4">
+                <h1 class="text-4xl md:text-6xl font-bold text-white text-glow mb-3">
                     Norelen
                 </h1>
             </div>
 
-            <p id="intro-paragraph" class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mt-6 mb-10">
+            <p id="intro-paragraph" class="text-base md:text-lg text-gray-300 max-w-2xl mx-auto mt-4 mb-6">
                 Un espacio creado solo para ti. Exclusivamente para ti. Espero que te guste ;)
             </p>
 
-            <div id="button-container" class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="#" id="gallery-button" class="action-button w-full sm:w-auto bg-pink-500/80 hover:bg-pink-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105">
+            <div id="button-container" class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="#" id="gallery-button" class="action-button w-full sm:w-auto bg-pink-500/80 hover:bg-pink-500 text-white font-semibold py-2.5 px-6 rounded-full shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105">
                     Tu Galería
                 </a>
-                <a href="#" id="writings-button" class="action-button w-full sm:w-auto bg-cyan-500/80 hover:bg-cyan-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transform hover:scale-105">
+                <a href="#" id="writings-button" class="action-button w-full sm:w-auto bg-cyan-500/80 hover:bg-cyan-500 text-white font-semibold py-2.5 px-6 rounded-full shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transform hover:scale-105">
                     Escritos
                 </a>
-                <a href="#" id="phrase-button" class="action-button w-full sm:w-auto bg-purple-500/80 hover:bg-purple-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transform hover:scale-105">
+                <a href="#" id="phrase-button" class="action-button w-full sm:w-auto bg-purple-500/80 hover:bg-purple-500 text-white font-semibold py-2.5 px-6 rounded-full shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transform hover:scale-105">
                     &lt;3
                 </a>
-                <a href="#" id="lock-button" class="action-button w-full sm:w-auto bg-gray-600/80 hover:bg-gray-500 text-white font-semibold p-3 rounded-full shadow-lg shadow-gray-500/30 hover:shadow-gray-500/50 transform hover:scale-105">
+                <a href="#" id="lock-button" class="action-button w-full sm:w-auto bg-gray-600/80 hover:bg-gray-500 text-white font-semibold p-2.5 rounded-full shadow-lg shadow-gray-500/30 hover:shadow-gray-500/50 transform hover:scale-105">
                     🔐
                 </a>
             </div>
+
+            <!-- NUEVO CONTENEDOR PARA EL BOTÓN DE AMOR -->
+            <div id="love-button-container" class="mt-4 text-center h-12"> <!-- Altura reducida -->
+                <a href="#" id="love-button" class="hidden inline-block bg-pink-500/80 hover:bg-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-110 transition-all duration-500 opacity-0 scale-90">
+                    TE AMOOO💗💖
+                </a>
+            </div>
             
-            <p id="special-phrase" class="message text-pink-300 text-xl mt-8"></p>
-            <p id="gallery-message" class="message text-cyan-300 text-lg mt-8 leading-relaxed"></p>
-            
-            <div id="writings-section" class="w-full text-left mt-8">
-                <div id="writings-buttons" class="flex flex-col items-center gap-4 w-full">
-                    <!-- Los botones de los escritos se generarán aquí con JS -->
+            <p id="special-phrase" class="message text-pink-300 text-lg mt-6"></p>
+            <p id="gallery-message" class="message text-cyan-300 text-base mt-6 leading-relaxed"></p>
+
+            <div id="memory-section" class="message flex flex-col items-center justify-center text-center mt-6">
+                <h3 class="text-xl font-bold text-pink-300 mb-3">Un Recuerdo Especial ✨</h3>
+                <div class="bg-black/20 p-2 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-500">
+                    <img id="memory-image" src="https://placehold.co/350x250/1a1a2e/e0e0e0?text=Nuestro+Recuerdo" alt="Un recuerdo especial" class="rounded-lg">
                 </div>
+                <p id="memory-caption" class="mt-3 text-gray-300 italic text-sm">Aquí irá una foto y descripción que agregarás tú ;)</p>
+            </div>
+            
+            <div id="writings-section" class="w-full text-left mt-6">
+                <div id="writings-buttons" class="flex flex-col items-center gap-3 w-full"></div>
                 <div id="writing-display" class="hidden opacity-0">
-                    <h3 id="writing-title" class="text-2xl font-bold text-pink-300 mb-4 text-center"></h3>
-                    <p id="writing-content" class="text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+                    <h3 id="writing-title" class="text-xl font-bold text-pink-300 mb-3 text-center"></h3>
+                    <p id="writing-content" class="text-gray-300 leading-relaxed whitespace-pre-wrap text-sm"></p>
                 </div>
             </div>
 
@@ -262,7 +371,7 @@
     </main>
 
     <script>
-        // Script para el efecto de brillo del cursor
+        // Efecto de brillo del cursor
         const cursorGlow = document.getElementById('cursor-glow');
         document.addEventListener('mousemove', (e) => {
             requestAnimationFrame(() => {
@@ -271,21 +380,13 @@
             });
         });
 
-        // Script para el efecto de partículas y constelaciones
+        // Efecto de partículas y constelaciones
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         let particlesArray;
-        const mouse = { x: null, y: null };
-        window.addEventListener('mousemove', (event) => {
-            mouse.x = event.x;
-            mouse.y = event.y;
-        });
-        window.addEventListener('mouseout', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
+        
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
@@ -293,15 +394,16 @@
                 this.size = Math.random() * 2.5 + 1;
                 this.speedX = (Math.random() * 0.6) - 0.3;
                 this.speedY = (Math.random() * 0.6) - 0.3;
-                this.color = 'rgba(236, 72, 153, 0.5)';
+                this.updateColor();
+            }
+            updateColor() {
+                this.color = `rgba(${getComputedStyle(document.body).getPropertyValue('--particle-rgb')}, 0.6)`;
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                }
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
             }
             draw() {
                 ctx.fillStyle = this.color;
@@ -319,14 +421,13 @@
         }
         function connect() {
             let opacityValue = 1;
+            const constellationRGB = getComputedStyle(document.body).getPropertyValue('--constellation-rgb');
             for (let a = 0; a < particlesArray.length; a++) {
                 for (let b = a; b < particlesArray.length; b++) {
-                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
-                                 + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-                    
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) ** 2) + ((particlesArray[a].y - particlesArray[b].y) ** 2);
                     if (distance < (canvas.width/7) * (canvas.height/7)) {
                         opacityValue = 1 - (distance/20000);
-                        ctx.strokeStyle = `rgba(107, 213, 255, ${opacityValue})`;
+                        ctx.strokeStyle = `rgba(${constellationRGB}, ${opacityValue})`;
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
@@ -355,7 +456,6 @@
 
         // --- LÓGICA DE LA INTERFAZ ---
 
-        // Elementos del DOM
         const glowingCard = document.getElementById('glowing-card');
         const phraseButton = document.getElementById('phrase-button');
         const galleryButton = document.getElementById('gallery-button');
@@ -364,11 +464,14 @@
         const backButton = document.getElementById('back-button');
         const phraseElement = document.getElementById('special-phrase');
         const galleryMessage = document.getElementById('gallery-message');
+        const memorySection = document.getElementById('memory-section');
         const secretCodeSection = document.getElementById('secret-code-section');
         const secretInputWrapper = document.getElementById('secret-input-wrapper');
         const secretCodeInput = document.getElementById('secret-code-input');
         const submitCodeButton = document.getElementById('submit-code-button');
         const buttonContainer = document.getElementById('button-container');
+        const loveButton = document.getElementById('love-button');
+        const loveButtonContainer = document.getElementById('love-button-container');
         const introParagraph = document.getElementById('intro-paragraph');
         const writingsSection = document.getElementById('writings-section');
         const writingsButtons = document.getElementById('writings-buttons');
@@ -376,56 +479,44 @@
         const writingTitle = document.getElementById('writing-title');
         const writingContent = document.getElementById('writing-content');
 
-        // Contenido
-        const phrases = [
-            "Eres demasiado bonita, no dejes que nadie te haga creer lo contrario.",
-            "No importa lo que pase, siempre serás especial para alguien.",
-            "Tu luz ilumina los rincones más oscuros del mundo.",
-            "Eres un sueño del que nadie querría despertar.",
-            "Tu existencia es la poesía más bonita jamás escrita. Significa esperanza.",
-            "No importa cuántas veces te lo diga, siempre será poco: eres increíble.",
-            "Cada parte de ti es bella, desde tus sueños hasta tus imperfecciones.",
-            "Eres la razón por la que creo que existen buenas mujeres.",
-            "Necesito que lo recuerdes: ERES ESPECIAAAAAAAAAAAL.",
-            "99.9% de probabilidad de que alguien te ame. Y ese alguien soy yo.",
-            "Eres la definición de belleza, tanto por dentro como por fuera.",
-            "Formas parte de mis pensamientos más felices.",
-            "Si me preguntaras cuántas veces he pensado en ti, diriía que solo una vaz, porque entraste y nunca saliste.",
-            "Bonita es la palabra que se queda corta para describirte.",
-            "Si la belleza fuera tiempo, tú serías eternidad.",
-            "Sisisi, eres pro, lo acepto."
-
-
-        ];
-
-        // --- INICIO CAMBIOS ---
+        // Contenido y Datos
+        const phrases = [ "Eres demasiado bonita...", "No importa lo que pase...", "Tu luz ilumina...", "Eres un sueño...", "Tu existencia es la poesía...", "No importa cuántas veces...", "Cada parte de ti es bella...", "Eres la razón por la que creo...", "Necesito que lo recuerdes...", "99.9% de probabilidad...", "Eres la definición de belleza...", "Formas parte de mis pensamientos...", "Si me preguntaras cuántas veces...", "Bonita es la palabra...", "Si la belleza fuera tiempo...", "Sisisi, eres pro, lo acepto." ];
         const writingsData = {
-            'carta-1': {
-                title: "Para la chica de mis sueños",
-                content: `Tú, Amy Norelen, apareciste como un farol en medio de una noche oscura y fría, una luz de esperanza que me recordó que no todo está perdido. \n\Pero tengo miedo, amar duele. Es por eso que solo los más valientes se atreven a amar. Y yo quiero ser valiente. En este poco tiempo me has parecido fascinante, y deseo seguir conociéndote más y más. No soy un ludópata, pero quiero apostar esta vez, apostar a que el amor existe y apostarlo contigo. Esta decisión no fue fácil, pero creo que debo dejar de tener tanto miedo. Ahora dime tú: ¿Vas a apostar conmigo también?`,
-                locked: true,
-                code: 'apuesta'
-            },
-
-            'carta-2': {
-                title: "Sinceridad",
-                content: `Oye… no sé cómo empezar esto, ni siquiera sé si lo estoy escribiendo bien. Tal vez estoy diciendo demasiado o tal vez me quede corto, pero igual quiero intentarlo. Porque si no lo digo, me lo guardo, y guardarse lo que uno siente a veces pesa más que cualquier cosa.\n\nLa verdad es que tengo miedo. Miedo de equivocarme, de no ser suficiente, de que esto que siento se quede en el aire y no llegue a ti como lo imagino en mi cabeza. A veces pienso que amar duele demasiado, y que lo fácil sería no arriesgarse. Pero entonces apareces tú, y me rompes todas esas excusas que yo mismo me invento.\n\nNo sé exactamente qué tienes… si es tu forma de hablar, de reír, de verme como si de verdad me notaras en un mundo que siempre pasa de largo. Lo que sí sé es que me haces querer quedarme, aunque tenga miedo, aunque duela, aunque no tenga la certeza de nada.\n\nQuiero ser honesto contigo: no soy perfecto, ni sé jugar a serlo. Me equivoco demasiado, digo cosas raras, y a veces hasta me cierro cuando más debería abrirme. Pero aquí estoy, intentando escribirte algo que salga directo de mí, sin adornos de más, solo lo que me sale al pensarte.\n\nMe haces creer que el amor todavía existe, que no es solo una idea bonita que siempre termina rompiéndose. Y por eso quiero apostar esta vez, contigo. No porque sea fácil, no porque esté seguro del resultado, sino porque creo que vales cada riesgo, cada duda, cada pedazo de miedo que tenga que tragarme para dar un paso hacia ti.\n\nNo espero que lo entiendas todo, ni que me respondas como en las películas, con frases perfectas. Solo quiero que sepas que lo que siento es real, aunque venga con nervios, con imperfecciones y con silencios incómodos hahaha.\n\nAsí que aquí estoy: abierto, siendo sincero.`,
-                locked: false,
-                code: 'sincero'
-            }
+            'carta-1': { title: "Para la chica de mis sueños", content: `Tú, Amy Norelen...`, locked: true },
+            'carta-2': { title: "Sinceridad", content: `Oye… no sé cómo empezar esto...`, locked: false }
         };
-        // --- FIN CAMBIOS ---
 
-        // Variables de estado
         let currentPhraseIndex = -1;
-        let animationState = 'initial'; // 'initial', 'phrases', 'gallery', 'secret', 'writings'
+        let animationState = 'initial';
+        let unlockedFeatures = { gallery: false };
 
-        // Funciones de la interfaz
+        function triggerHeartShower() {
+            const heartEmojis = ['❤️', '💖', '💕', '💗', '💓', '💞'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.innerText = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                    heart.style.left = `${Math.random() * 100}vw`;
+                    heart.style.animationDuration = `${Math.random() * 2 + 3}s`;
+                    heart.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
+                    document.body.appendChild(heart);
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 100);
+            }
+        }
+
+        const secretCodes = {
+            'apuesta': { type: 'writing', key: 'carta-1', message: 'Escrito desbloqueado.' },
+            'teamo': { type: 'unlock_button', buttonId: 'love-button', message: '¡Botón secreto desbloqueado!'},
+            'recuerdo': { type: 'unlock', feature: 'gallery', message: 'Recuerdo especial desbloqueado. 🖼️' }
+        };
+
         function showMessage(element, text) {
             document.querySelectorAll('.message').forEach(msg => msg.classList.remove('is-visible'));
             writingsSection.classList.remove('is-visible');
             setTimeout(() => {
-                if(text) element.innerHTML = text;
+                if (text) element.innerHTML = text;
                 element.classList.add('is-visible');
             }, 300);
         }
@@ -434,8 +525,7 @@
             if (animationState === 'initial') {
                 glowingCard.classList.add('is-shrunken');
                 introParagraph.style.maxHeight = '0';
-                introParagraph.style.marginTop = '0';
-                introParagraph.style.marginBottom = '0';
+                introParagraph.style.margin = '0';
                 introParagraph.classList.add('opacity-0');
                 backButton.classList.remove('opacity-0', 'pointer-events-none', '-translate-x-20');
             }
@@ -443,13 +533,19 @@
 
         function handleSectionClick(state, element, text) {
             if (animationState !== 'initial') return;
-            
             shrinkCard();
             animationState = state;
-            
             buttonContainer.style.maxHeight = '0';
             buttonContainer.style.opacity = '0';
             buttonContainer.classList.add('pointer-events-none');
+            
+            // Oculta el contenedor del botón de amor también para evitar que ocupe espacio
+            if (loveButtonContainer) {
+                loveButtonContainer.style.maxHeight = '0';
+                loveButtonContainer.style.opacity = '0';
+                loveButtonContainer.style.marginTop = '0';
+                loveButtonContainer.classList.add('pointer-events-none');
+            }
 
             if (element) {
                 if(text) element.innerHTML = text;
@@ -457,197 +553,115 @@
             }
         }
 
-        // Event Listeners para los botones principales
         phraseButton.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    // Si la sección <3 no está activa, haz la animación solo una vez
-    if (animationState !== 'phrases') {
-        shrinkCard();
-        animationState = 'phrases';
-        ['gallery-button', 'writings-button', 'lock-button'].forEach(id => {
-            const btn = document.getElementById(id);
-            btn.style.width = '0';
-            btn.style.paddingLeft = '0';
-            btn.style.paddingRight = '0';
-            btn.style.margin = '0';
-            btn.style.opacity = '0';
+            e.preventDefault();
+            if (animationState !== 'phrases') {
+                shrinkCard();
+                animationState = 'phrases';
+                ['gallery-button', 'writings-button', 'lock-button'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    btn.style.width = '0'; btn.style.padding = '0'; btn.style.margin = '0'; btn.style.opacity = '0';
+                });
+                buttonContainer.style.justifyContent = 'center';
+            }
+            let randomIndex;
+            do { randomIndex = Math.floor(Math.random() * phrases.length); } while (phrases.length > 1 && randomIndex === currentPhraseIndex);
+            currentPhraseIndex = randomIndex;
+            showMessage(phraseElement, phrases[currentPhraseIndex]);
         });
-        buttonContainer.style.justifyContent = 'center';
-    }
-
-    // Siempre muestra una frase diferente
-    let randomIndex;
-    do {
-        randomIndex = Math.floor(Math.random() * phrases.length);
-    } while (phrases.length > 1 && randomIndex === currentPhraseIndex);
-    currentPhraseIndex = randomIndex;
-    showMessage(phraseElement, phrases[currentPhraseIndex]);
-    });
-    phraseButton.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    // Si la sección <3 no está activa, haz la animación solo una vez
-    if (animationState !== 'phrases') {
-        shrinkCard();
-        animationState = 'phrases';
-        ['gallery-button', 'writings-button', 'lock-button'].forEach(id => {
-            const btn = document.getElementById(id);
-            btn.style.width = '0';
-            btn.style.paddingLeft = '0';
-            btn.style.paddingRight = '0';
-            btn.style.margin = '0';
-            btn.style.opacity = '0';
-        });
-        buttonContainer.style.justifyContent = 'center';
-    }
-
-    // Siempre muestra una frase diferente
-    let randomIndex;
-    do {
-        randomIndex = Math.floor(Math.random() * phrases.length);
-    } while (phrases.length > 1 && randomIndex === currentPhraseIndex);
-    currentPhraseIndex = randomIndex;
-    showMessage(phraseElement, phrases[currentPhraseIndex]);
-});
-
         
         galleryButton.addEventListener('click', (e) => {
             e.preventDefault();
-            const text = "Uyyy, lo siento. No puedo poner fotos tuyas si no las tengo.😉<br>PD: Conforme pase el tiempo iré agregando nuevas cosas ;)";
-            handleSectionClick('gallery', galleryMessage, text);
+            handleSectionClick('gallery', unlockedFeatures.gallery ? memorySection : galleryMessage, unlockedFeatures.gallery ? null : "Uyyy, lo siento...😉");
         });
         
-        lockButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            handleSectionClick('secret');
-            secretCodeSection.classList.add('is-visible');
-        });
+        lockButton.addEventListener('click', (e) => { e.preventDefault(); handleSectionClick('secret'); secretCodeSection.classList.add('is-visible'); });
 
         writingsButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            handleSectionClick('writings', writingsSection);
-
-            writingsButtons.innerHTML = '';
-            let unlockedCount = 0;
+            e.preventDefault(); handleSectionClick('writings', writingsSection);
+            writingsButtons.innerHTML = ''; let unlockedCount = 0;
             for (const key in writingsData) {
-                if (!writingsData[key].locked) { // Solo mostrar si no está bloqueado
-                    unlockedCount++;
-                    const button = document.createElement('a');
-                    button.href = '#';
-                    button.textContent = writingsData[key].title;
-                    button.dataset.key = key;
-                    button.className = 'w-full max-w-sm bg-purple-500/80 hover:bg-purple-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transform hover:scale-105 transition-all duration-300';
-                    writingsButtons.appendChild(button);
+                if (!writingsData[key].locked) {
+                    unlockedCount++; const button = document.createElement('a'); button.href = '#'; button.textContent = writingsData[key].title; button.dataset.key = key; button.className = 'w-full max-w-sm bg-purple-500/80 hover:bg-purple-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all'; writingsButtons.appendChild(button);
                 }
             }
-
-            if (unlockedCount === 0) {
-                const p = document.createElement('p');
-                p.textContent = 'Aún no has desbloqueado ningún escrito. ¡Usa los códigos secretos!';
-                p.className = 'text-center text-gray-400';
-                writingsButtons.appendChild(p);
-            }
-
-            writingDisplay.classList.add('hidden');
-            writingDisplay.classList.remove('opacity-0');
-            writingsButtons.classList.remove('hidden');
+            if (unlockedCount === 0) { const p = document.createElement('p'); p.textContent = 'Aún no has desbloqueado ningún escrito.'; p.className = 'text-center text-gray-400'; writingsButtons.appendChild(p); }
+            writingDisplay.classList.add('hidden', 'opacity-0'); writingsButtons.classList.remove('hidden');
         });
 
         writingsButtons.addEventListener('click', (e) => {
             e.preventDefault();
             if (e.target.tagName === 'A') {
-                const key = e.target.dataset.key;
-                const writing = writingsData[key];
-
+                const writing = writingsData[e.target.dataset.key];
                 if (writing) {
-                    writingTitle.textContent = writing.title;
-                    writingContent.textContent = writing.content;
-
-                    writingsButtons.classList.add('hidden');
-                    writingDisplay.classList.remove('hidden');
+                    writingTitle.textContent = writing.title; writingContent.textContent = writing.content;
+                    writingsButtons.classList.add('hidden'); writingDisplay.classList.remove('hidden');
                     setTimeout(() => writingDisplay.classList.add('opacity-100'), 50);
                 }
             }
         });
 
-        secretCodeInput.addEventListener('focus', () => {
-            if (!secretInputWrapper.classList.contains('success')) {
-                secretInputWrapper.classList.add('is-focused');
-            }
-        });
-        secretCodeInput.addEventListener('blur', () => {
-            secretInputWrapper.classList.remove('is-focused');
-        });
+        secretCodeInput.addEventListener('focus', () => secretInputWrapper.classList.add('is-focused'));
+        secretCodeInput.addEventListener('blur', () => secretInputWrapper.classList.remove('is-focused'));
 
-        // --- INICIO CAMBIOS ---
+        // --- LÓGICA DE CÓDIGOS ACTUALIZADA ---
         submitCodeButton.addEventListener('click', (e) => {
             e.preventDefault();
             secretInputWrapper.classList.remove('error', 'success', 'is-focused');
-            const enteredCode = secretCodeInput.value.toLowerCase();
-            let codeFound = false;
+            const enteredCode = secretCodeInput.value.trim().toLowerCase();
+            const codeData = secretCodes[enteredCode];
 
-            for (const key in writingsData) {
-                if (writingsData[key].code === enteredCode) {
-                    writingsData[key].locked = false; // Desbloquear el escrito
-                    codeFound = true;
-                    break; // Salir del bucle una vez encontrado
-                }
-            }
-
-            if (codeFound) {
+            if (codeData) {
                 secretInputWrapper.classList.add('success');
+                switch (codeData.type) {
+                    case 'writing': writingsData[codeData.key].locked = false; break;
+                    case 'unlock_button': document.getElementById(codeData.buttonId)?.classList.remove('hidden', 'opacity-0', 'scale-90'); break;
+                    case 'unlock': 
+                        unlockedFeatures[codeData.feature] = true;
+                        if(codeData.feature === 'gallery') galleryButton.innerHTML = 'Nuestro Recuerdo ✨';
+                        break;
+                }
+                secretCodeInput.placeholder = codeData.message; secretCodeInput.value = '';
                 setTimeout(() => {
-                    backButton.click();
-                }, 500);
+                    backButton.click(); setTimeout(() => { secretCodeInput.placeholder = 'Introduce un código'; }, 500);
+                }, 1500);
             } else {
-                secretInputWrapper.classList.add('error');
-                setTimeout(() => {
-                    secretInputWrapper.classList.remove('error');
-                }, 820);
+                secretInputWrapper.classList.add('error'); secretCodeInput.value = ''; secretCodeInput.placeholder = 'Código incorrecto.';
+                setTimeout(() => { secretInputWrapper.classList.remove('error'); secretCodeInput.placeholder = 'Introduce un código'; }, 1500);
             }
         });
-        // --- FIN CAMBIOS ---
+
+        loveButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.add('theme-love');
+            particlesArray.forEach(p => p.updateColor()); // Actualiza el color sin recrear
+            triggerHeartShower();
+        });
 
         backButton.addEventListener('click', (e) => {
             e.preventDefault();
             if (animationState === 'initial') return;
-
             if (animationState === 'writings' && !writingDisplay.classList.contains('hidden')) {
                 writingDisplay.classList.remove('opacity-100');
-                setTimeout(() => {
-                    writingDisplay.classList.add('hidden');
-                    writingsButtons.classList.remove('hidden');
-                }, 400);
+                setTimeout(() => { writingDisplay.classList.add('hidden'); writingsButtons.classList.remove('hidden'); }, 400);
                 return; 
             }
-
             glowingCard.classList.remove('is-shrunken');
             backButton.classList.add('opacity-0', 'pointer-events-none', '-translate-x-20');
-            document.querySelectorAll('.message').forEach(msg => msg.classList.remove('is-visible'));
-            secretCodeSection.classList.remove('is-visible');
-            writingsSection.classList.remove('is-visible');
-            secretCodeInput.value = '';
-            secretInputWrapper.classList.remove('error', 'success', 'is-focused');
-
-            introParagraph.style.maxHeight = '';
-            introParagraph.style.marginTop = '';
-            introParagraph.style.marginBottom = '';
-            introParagraph.classList.remove('opacity-0');
-
-            buttonContainer.style.maxHeight = '';
-            buttonContainer.style.opacity = '';
-            buttonContainer.classList.remove('pointer-events-none');
-            buttonContainer.style.justifyContent = '';
-
-            document.querySelectorAll('.action-button').forEach(btn => {
-                btn.style.width = '';
-                btn.style.paddingLeft = '';
-                btn.style.paddingRight = '';
-                btn.style.margin = '';
-                btn.style.opacity = '';
-            });
+            document.querySelectorAll('.message, #secret-code-section, #writings-section').forEach(el => el.classList.remove('is-visible'));
+            secretCodeInput.value = ''; secretInputWrapper.classList.remove('error', 'success', 'is-focused');
+            introParagraph.style.maxHeight = ''; introParagraph.style.margin = ''; introParagraph.classList.remove('opacity-0');
+            buttonContainer.style.maxHeight = ''; buttonContainer.style.opacity = ''; buttonContainer.classList.remove('pointer-events-none'); buttonContainer.style.justifyContent = '';
             
+            // Restaura el contenedor del botón de amor
+            if (loveButtonContainer) {
+                loveButtonContainer.style.maxHeight = '';
+                loveButtonContainer.style.opacity = '';
+                loveButtonContainer.style.marginTop = '';
+                loveButtonContainer.classList.remove('pointer-events-none');
+            }
+
+            document.querySelectorAll('.action-button').forEach(btn => { btn.style.width = ''; btn.style.padding = ''; btn.style.margin = ''; btn.style.opacity = ''; });
             animationState = 'initial';
         });
     </script>
